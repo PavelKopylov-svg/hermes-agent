@@ -147,6 +147,15 @@ esac
 # `sleep infinity` sandbox containers — see tools/environments/docker.py).
 # Otherwise we treat the args as a hermes subcommand and wrap with `hermes`,
 # preserving the documented `docker run <image> <subcommand>` behavior.
+# Apply HERMES_MODEL / HERMES_INFERENCE_PROVIDER env overrides into config.yaml
+# so the gateway (which reads only config.yaml, not env) uses the right model.
+if [ -n "${HERMES_MODEL:-}" ]; then
+    hermes config set model.default "$HERMES_MODEL" >/dev/null 2>&1 || true
+fi
+if [ -n "${HERMES_INFERENCE_PROVIDER:-}" ]; then
+    hermes config set model.provider "$HERMES_INFERENCE_PROVIDER" >/dev/null 2>&1 || true
+fi
+
 if [ $# -gt 0 ] && command -v "$1" >/dev/null 2>&1; then
     exec "$@"
 fi
